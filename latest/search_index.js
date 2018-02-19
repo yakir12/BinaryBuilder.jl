@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Project flow",
     "category": "section",
-    "text": "BinaryBuilder.jl makes it easy to move from source code to packaged tarball.  In the end, what you hope to gain from using this package is a handful of compiled tarballs and a Julia snippet that uses BinaryProvider.jl to install the binaries.  An example of this is shown in this file, where a mapping from the different platforms is established to various tarballs that have been built with this package, and according to the platform the user's Julia installation is running on, that package is downloaded and installed to a package-specific Prefix.To get to that point, the source code for a project must be downloaded, it must be compiled for the various platforms, it must be packaged and hosted, at which point it may finally be downloaded and installed on user's machines.  Although it is technically possible to manually package software using BinaryBuilder.jl, this package is geared toward automation.  Most interaction with this package will revolve around methods to construct a build_tarballs.jl script for your source code that will download, build and package it into a nice tarball.  Note that while you can write your own build script from scratch, most users will want to use the Wizard to interactively generate this build script instead."
+    "text": "BinaryBuilder.jl makes it easy to move from source code to packaged tarball.  In the end, what you hope to gain from using this package is a handful of compiled tarballs and a Julia snippet that uses BinaryProvider.jl to install the binaries.  An example of this is shown in this file, where a mapping from the different platforms is established to various tarballs that have been built with this package, and according to the platform the user\'s Julia installation is running on, that package is downloaded and installed to a package-specific Prefix.To get to that point, the source code for a project must be downloaded, it must be compiled for the various platforms, it must be packaged and hosted, at which point it may finally be downloaded and installed on user\'s machines.  Although it is technically possible to manually package software using BinaryBuilder.jl, this package is geared toward automation.  Most interaction with this package will revolve around methods to construct a build_tarballs.jl script for your source code that will download, build and package it into a nice tarball.  Note that while you can write your own build script from scratch, most users will want to use the Wizard to interactively generate this build script instead."
 },
 
 {
@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Build scripts",
     "category": "section",
-    "text": "A BinaryBuilder.jl build script (what is often referred to as a build_tarballs.jl file) looks something like this:using BinaryBuilder\n\nsrc_tarball = \"<path to source tarball>\"\nsrc_hash    = \"sha256 hash of the source tarball\"\nsources = [\n    (src_tarball, src_hash),\n]\n\nscript = raw\"\"\"\nmake\nmake install\n\"\"\"\n\nproducts = prefix -> [\n    LibraryProduct(prefix, \"libfoo\"),\n    ExecutableProduct(prefix, \"fooifier\"),\n]\n\n# Build 'em!\nautobuild(\n    pwd(),\n    \"libfoo\",\n    supported_platforms(),\n    sources,\n    script,\n    products,\n)This bare-bones snippet (an adapted form of the libfoo test within this repository) first identifies the sources to download and compile (there can be multiple sources listed here), then lists the bash commands to actually build this particular project.  Next, the products are defined.  These represent the output of the build process, and are how BinaryBuilder.jl knows that its build has succeeded.  Finally, we pass this information off to autobuild(), which takes it all in and runs the builds, placing output tarballs into the ./products directory.The bash commands contained within script will be executed for each platform that is passed in, so if there are platform differences that need to be addressed in the build script, using if statements and the $target environment variable can be a powerful tool.  See the OpenBLASBuilder build script for an example showcasing this.Once the autobuild() method completes, it will print out a template build.jl file to download and install the generated tarballs.  This file is what will be used in Julia packages that need to use your built binaries.  An example is given in the Nettle repository.While constructing your own build script is certainly possible, BinaryBuilder.jl supports a more interactive method for building the binary dependencies and capturing the commands used to build it into a build_tarballs.jl file; the Wizard interface."
+    "text": "A BinaryBuilder.jl build script (what is often referred to as a build_tarballs.jl file) looks something like this:using BinaryBuilder\n\nsrc_tarball = \"<path to source tarball>\"\nsrc_hash    = \"sha256 hash of the source tarball\"\nsources = [\n    (src_tarball, src_hash),\n]\n\nscript = raw\"\"\"\nmake\nmake install\n\"\"\"\n\nproducts = prefix -> [\n    LibraryProduct(prefix, \"libfoo\"),\n    ExecutableProduct(prefix, \"fooifier\"),\n]\n\n# Build \'em!\nautobuild(\n    pwd(),\n    \"libfoo\",\n    supported_platforms(),\n    sources,\n    script,\n    products,\n)This bare-bones snippet (an adapted form of the libfoo test within this repository) first identifies the sources to download and compile (there can be multiple sources listed here), then lists the bash commands to actually build this particular project.  Next, the products are defined.  These represent the output of the build process, and are how BinaryBuilder.jl knows that its build has succeeded.  Finally, we pass this information off to autobuild(), which takes it all in and runs the builds, placing output tarballs into the ./products directory.The bash commands contained within script will be executed for each platform that is passed in, so if there are platform differences that need to be addressed in the build script, using if statements and the $target environment variable can be a powerful tool.  See the OpenBLASBuilder build script for an example showcasing this.Once the autobuild() method completes, it will print out a template build.jl file to download and install the generated tarballs.  This file is what will be used in Julia packages that need to use your built binaries.  An example is given in the Nettle repository.While constructing your own build script is certainly possible, BinaryBuilder.jl supports a more interactive method for building the binary dependencies and capturing the commands used to build it into a build_tarballs.jl file; the Wizard interface."
 },
 
 {
@@ -77,7 +77,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Build Tips",
     "title": "CMake builds",
     "category": "section",
-    "text": "For CMake, the wizard will suggest a template for running CMake. Typically, this will look like:make -DCMAKE_INSTALL_PREFIX=$prefix -DCMAKE_TOOLCHAIN_FILE=/opt/$target/$target.toolchainThe toolchain file sets up several CMake environment variables for better cross-platform support: # Toolchain file for x86_64-linux-gnu\nset(CMAKE_SYSTEM_NAME Linux)\n\nset(CMAKE_SYSROOT /opt/x86_64-linux-gnu/x86_64-linux-gnu/sys-root/)\nset(CMAKE_INSTALL_PREFIX /)\n\nset(CMAKE_C_COMPILER /opt/x86_64-linux-gnu/bin/x86_64-linux-gnu-gcc)\nset(CMAKE_CXX_COMPILER /opt/x86_64-linux-gnu/bin/x86_64-linux-gnu-g++)\n\nset(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)\nset(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)\nset(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)\nset(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)Examples of builds that include CMake parts include:staticfloat/IpoptBuilder\ndavidanthoff/SnappyBuilder\nJuliaDiffEq/SundialsBuilder\nNeeds -DSUNDIALS_INDEX_TYPE=int32_t on 32-bit targets (Sundials-specific way to specify integer size)\nNeeds to copy *.dll files from destdir/lib to destdir/bin for windows; this also removes symlinks by using cp -L\nNeeds -DCMAKE_FIND_ROOT_PATH=\"$WORKSPACE/destdir\", so CMake's find_library can find libraries from KLU"
+    "text": "For CMake, the wizard will suggest a template for running CMake. Typically, this will look like:make -DCMAKE_INSTALL_PREFIX=$prefix -DCMAKE_TOOLCHAIN_FILE=/opt/$target/$target.toolchainThe toolchain file sets up several CMake environment variables for better cross-platform support: # Toolchain file for x86_64-linux-gnu\nset(CMAKE_SYSTEM_NAME Linux)\n\nset(CMAKE_SYSROOT /opt/x86_64-linux-gnu/x86_64-linux-gnu/sys-root/)\nset(CMAKE_INSTALL_PREFIX /)\n\nset(CMAKE_C_COMPILER /opt/x86_64-linux-gnu/bin/x86_64-linux-gnu-gcc)\nset(CMAKE_CXX_COMPILER /opt/x86_64-linux-gnu/bin/x86_64-linux-gnu-g++)\n\nset(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)\nset(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)\nset(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)\nset(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)Examples of builds that include CMake parts include:staticfloat/IpoptBuilder\ndavidanthoff/SnappyBuilder\nJuliaDiffEq/SundialsBuilder\nNeeds -DSUNDIALS_INDEX_TYPE=int32_t on 32-bit targets (Sundials-specific way to specify integer size)\nNeeds to copy *.dll files from destdir/lib to destdir/bin for windows; this also removes symlinks by using cp -L\nNeeds -DCMAKE_FIND_ROOT_PATH=\"$WORKSPACE/destdir\", so CMake\'s find_library can find libraries from KLU"
 },
 
 {
@@ -93,7 +93,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Build Tips",
     "title": "Editing files in the wizard",
     "category": "section",
-    "text": "In the wizard, the vi editor is available for editing files. But, it doesn't leave any record in the build script. One generally needs to provide patch files or sue something like sed. Here is an approach using diff and patch:cp file.ext file.ext.orig\nvi file.ext     # make the changes\ndiff -u file.ext.orig file.ext\n# Create a patch based on the results copy-pasted from the output of `diff`\ncat > file.patch <<'END'\n--- file.ext.orig 2017-12-14 19:28:48.816021000 -0500\n+++ file.ext2017-12-14 19:29:03.912021000 -0500\n@@ -1,4 +1,5 @@\n -https://computation.llnl.gov/projects/sundials/download/sundials-3.0.0.tar.gz\n +https://computation.llnl.gov/projects/sundials/download/sundials-3.1.0.tar.gz\n  \n  http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-5.0.0.tar.gz\n \nEND\n# Apply the patch\npatch -l file.ext.orig file.patch -o file.extThere are plans to handle file changes in the wizard automatically (#25)."
+    "text": "In the wizard, the vi editor is available for editing files. But, it doesn\'t leave any record in the build script. One generally needs to provide patch files or sue something like sed. Here is an approach using diff and patch:cp file.ext file.ext.orig\nvi file.ext     # make the changes\ndiff -u file.ext.orig file.ext\n# Create a patch based on the results copy-pasted from the output of `diff`\ncat > file.patch <<\'END\'\n--- file.ext.orig 2017-12-14 19:28:48.816021000 -0500\n+++ file.ext2017-12-14 19:29:03.912021000 -0500\n@@ -1,4 +1,5 @@\n -https://computation.llnl.gov/projects/sundials/download/sundials-3.0.0.tar.gz\n +https://computation.llnl.gov/projects/sundials/download/sundials-3.1.0.tar.gz\n  \n  http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-5.0.0.tar.gz\n \nEND\n# Apply the patch\npatch -l file.ext.orig file.patch -o file.extThere are plans to handle file changes in the wizard automatically (#25)."
 },
 
 {
@@ -137,11 +137,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "FAQ.html#I'm-having-trouble-compiling-project-name-here-1",
+    "location": "FAQ.html#I\'m-having-trouble-compiling-project-name-here-1",
     "page": "FAQ",
-    "title": "I'm having trouble compiling <project name here>",
+    "title": "I\'m having trouble compiling <project name here>",
     "category": "section",
-    "text": "First, make sure that you can compile that project natively on whatever platform you're attempting to compile it on.  Once you are assured of that, search around the internet to see if anyone else has run into issues cross-compiling that project for that platform.  In particular, most smaller projects should be just fine, but larger projects (and especially anything that does any kind of bootstrapping) may need some extra smarts smacked into their build system to support cross-compiling.  Finally, if you're still stuck, try reaching out for help on the #bindeps2 channel in the JuliaLang slack."
+    "text": "First, make sure that you can compile that project natively on whatever platform you\'re attempting to compile it on.  Once you are assured of that, search around the internet to see if anyone else has run into issues cross-compiling that project for that platform.  In particular, most smaller projects should be just fine, but larger projects (and especially anything that does any kind of bootstrapping) may need some extra smarts smacked into their build system to support cross-compiling.  Finally, if you\'re still stuck, try reaching out for help on the #bindeps2 channel in the JuliaLang slack."
 },
 
 {
@@ -173,7 +173,7 @@ var documenterSearchIndex = {"docs": [
     "page": "FAQ",
     "title": "Hey, this is cool, can I use this for my non-Julia related project?",
     "category": "section",
-    "text": "Absolutely!  There's nothing Julia-specific about the binaries generated by the cross-compilers used by BinaryBuilder.jl.  Although the best interface for interacting with this software will always be the Julia interface defined within this package, you are free to use these software tools for other projects as well.  Note that the cross-compiler image is built within an enormous Docker image, see this repository for more information.  Further note the macOS SDK license agreement tidbit above."
+    "text": "Absolutely!  There\'s nothing Julia-specific about the binaries generated by the cross-compilers used by BinaryBuilder.jl.  Although the best interface for interacting with this software will always be the Julia interface defined within this package, you are free to use these software tools for other projects as well.  Note that the cross-compiler image is built within an enormous Docker image, see this repository for more information.  Further note the macOS SDK license agreement tidbit above."
 },
 
 {
@@ -205,7 +205,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tricksy Gotchas",
     "title": "Tricksy Gotchas",
     "category": "section",
-    "text": "There is a plethora of gotchas when it comes to binary compilation and distribution that must be appropriately addressed, or the binaries will only work on certain machines and not others.  Here is an incomplete list of things that this package takes care of for you:Uniform compiler interfaceNo need to worry about invoking compilers through weird names; just run gcc within the proper environment and you'll get the appropriate cross-compiler.  Triplet-prefixed names (such as x86_64-linux-gnu-gcc) are, of course, also available, and the same version of gcc, g++ and gfortran is used across all platforms.glibc versioningOn Linux platforms that use glibc as the C runtime library (at the time of writing, this is the great majority of most desktop and server distros), it is necessary to compile code against a version of glibc that is _older_ than any glibc version it will be run on.  E.g. if your code is compiled against glibc v2.5, it will run on glibc v2.6, but it will not run on glibc v2.4.  Therefore, to maximize compability, all code should be compiled against as old a version of glibc as possible.Library DependenciesA large source of problems in binary distribution is improper library linkage.  When building a binary object that depends upon another binary object, some operating systems (such as macOS) bake the absolute path to the dependee library into the dependent, whereas others rely on the library being present within a default search path.  BinaryBuilder.jl takes care of this by automatically discovering these errors and fixing them by using the RPATH/RUNPATH semantics of whichever platform it is targeting.  Note that this is technically a build system error, and although we will fix it automatically, it will raise a nice yellow warning during build prefix audit time."
+    "text": "There is a plethora of gotchas when it comes to binary compilation and distribution that must be appropriately addressed, or the binaries will only work on certain machines and not others.  Here is an incomplete list of things that this package takes care of for you:Uniform compiler interfaceNo need to worry about invoking compilers through weird names; just run gcc within the proper environment and you\'ll get the appropriate cross-compiler.  Triplet-prefixed names (such as x86_64-linux-gnu-gcc) are, of course, also available, and the same version of gcc, g++ and gfortran is used across all platforms.glibc versioningOn Linux platforms that use glibc as the C runtime library (at the time of writing, this is the great majority of most desktop and server distros), it is necessary to compile code against a version of glibc that is _older_ than any glibc version it will be run on.  E.g. if your code is compiled against glibc v2.5, it will run on glibc v2.6, but it will not run on glibc v2.4.  Therefore, to maximize compability, all code should be compiled against as old a version of glibc as possible.Library DependenciesA large source of problems in binary distribution is improper library linkage.  When building a binary object that depends upon another binary object, some operating systems (such as macOS) bake the absolute path to the dependee library into the dependent, whereas others rely on the library being present within a default search path.  BinaryBuilder.jl takes care of this by automatically discovering these errors and fixing them by using the RPATH/RUNPATH semantics of whichever platform it is targeting.  Note that this is technically a build system error, and although we will fix it automatically, it will raise a nice yellow warning during build prefix audit time.Instruction Set DifferencesWhen compiling for architectures that have evolved over time (such as x86_64), it is important to target the correct instruction set, otherwise a binary may contain instructions that will run on the computer it was compiled on, but will fail rather ungracefully when run on a machine that does not have as new a processor.  BinaryBuilder.jl will automatically disassemble every built binary object and inspect the instructions used, warning the user if a binary is found that does not conform to the agreed-upon minimum instruction set architecture.  It will also notice if the binary contains a cpuid instruction, which is a good sign that the binary is aware of this issue and will internally switch itself to use only available instructions."
 },
 
 {
@@ -313,6 +313,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#BinaryBuilder.analyze_instruction_set-Tuple{ObjectFile.ObjectHandle}",
+    "page": "Reference",
+    "title": "BinaryBuilder.analyze_instruction_set",
+    "category": "Method",
+    "text": "analyze_instruction_set(oh::ObjectHandle; verbose::Bool = false)\n\nAnalyze the instructions within the binary located at the given path for which minimum instruction set it requires, taking note of groups of instruction sets used such as avx, sse4.2, i486, etc....\n\nSome binary files (such as libopenblas) contain multiple versions of functions, internally determining which version to call by using the cpuid instruction to determine processor support.  In an effort to detect this, we make note of any usage of the cpuid instruction, disabling our minimum instruction set calculations if such an instruction is found, and notifying the user of this if verbose is set to true.\n\nNote that this function only really makes sense for x86/x64 binaries.  Don\'t run this on armv7l, aarch64, ppc64le etc... binaries and expect it to work.\n\n\n\n"
+},
+
+{
     "location": "reference.html#BinaryBuilder.canonicalize_file_url-Tuple{Any}",
     "page": "Reference",
     "title": "BinaryBuilder.canonicalize_file_url",
@@ -385,6 +393,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#BinaryBuilder.instruction_mnemonics-Tuple{AbstractString}",
+    "page": "Reference",
+    "title": "BinaryBuilder.instruction_mnemonics",
+    "category": "Method",
+    "text": "instruction_mnemonics(path::AbstractString)\n\nDump a binary object with objdump from our super-binutils, returning a list of instruction mnemonics for further analysis with analyze_instruction_set().\n\nNote that this function only really makes sense for x86/x64 binaries.  Don\'t run this on armv7l, aarch64, ppc64le etc... binaries and expect it to work.\n\nThis function returns the list of mnemonics as well as the counts of each, binned by the mapping defined within instruction_categories.\n\n\n\n"
+},
+
+{
     "location": "reference.html#BinaryBuilder.interactive_build-Tuple{BinaryBuilder.WizardState,BinaryProvider.Prefix,BinaryBuilder.Runner,AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.interactive_build",
@@ -409,6 +425,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#BinaryBuilder.minimum_instruction_set-Tuple{Dict,Bool}",
+    "page": "Reference",
+    "title": "BinaryBuilder.minimum_instruction_set",
+    "category": "Method",
+    "text": "minimum_instruction_set(counts::Dict, is_64bit::Bool)\n\nThis function returns the minimum instruction set required, depending on whether the object file being pointed to is a 32-bit or 64-bit one:\n\nFor 32-bit object files, this returns one of [:pentium4, :prescott]\nFor 64-bit object files, this returns one of [:core2, :sandybridge, :haswell]\n\n\n\n"
+},
+
+{
     "location": "reference.html#BinaryBuilder.normalize_name-Tuple{AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.normalize_name",
@@ -421,7 +445,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Reference",
     "title": "BinaryBuilder.pick_preferred_platform",
     "category": "Method",
-    "text": "Pick the first platform for use to run on. We prefer Linux x86_64 because\nthat's generally the host platform, so it's usually easiest. After that we\ngo by the following preferences:\n    - OS (in order): Linux, Windows, OSX\n    - Architecture: x86_64, i686, aarch64, powerpc64le, armv7l\n    - The first remaining after this selection\n\n\n\n"
+    "text": "Pick the first platform for use to run on. We prefer Linux x86_64 because\nthat\'s generally the host platform, so it\'s usually easiest. After that we\ngo by the following preferences:\n    - OS (in order): Linux, Windows, OSX\n    - Architecture: x86_64, i686, aarch64, powerpc64le, armv7l\n    - The first remaining after this selection\n\n\n\n"
 },
 
 {

@@ -12,9 +12,9 @@ make
 make install
 &quot;&quot;&quot;
 
-products = prefix -&gt; [
-    LibraryProduct(prefix, &quot;libfoo&quot;),
-    ExecutableProduct(prefix, &quot;fooifier&quot;),
+products(prefix) = [
+    LibraryProduct(prefix, &quot;libfoo&quot;, :libfoo),
+    ExecutableProduct(prefix, &quot;fooifier&quot;, :fooifier),
 ]
 
 # Build &#39;em!

@@ -305,6 +305,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#BinaryBuilder.product_hashes_from_github_release-Tuple{AbstractString,AbstractString}",
+    "page": "Reference",
+    "title": "BinaryBuilder.product_hashes_from_github_release",
+    "category": "Method",
+    "text": "If you have a sharded build on Github, it would be nice if we could get an auto-generated build.jl just like if we build serially.  This function eases the pain by reconstructing it from a releases page.\n\n\n\n"
+},
+
+{
     "location": "reference.html#BinaryProvider.satisfied-Tuple{BinaryBuilder.Dependency}",
     "page": "Reference",
     "title": "BinaryProvider.satisfied",

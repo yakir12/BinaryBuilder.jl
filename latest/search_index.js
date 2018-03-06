@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Build scripts",
     "category": "section",
-    "text": "A BinaryBuilder.jl build script (what is often referred to as a build_tarballs.jl file) looks something like this:using BinaryBuilder\n\nsrc_tarball = \"<path to source tarball>\"\nsrc_hash    = \"sha256 hash of the source tarball\"\nsources = [\n    (src_tarball, src_hash),\n]\n\nscript = raw\"\"\"\nmake\nmake install\n\"\"\"\n\nproducts(prefix) = [\n    LibraryProduct(prefix, \"libfoo\", :libfoo),\n    ExecutableProduct(prefix, \"fooifier\", :fooifier),\n]\n\n# Build \'em!\nautobuild(\n    pwd(),\n    \"libfoo\",\n    supported_platforms(),\n    sources,\n    script,\n    products,\n)This bare-bones snippet (an adapted form of the libfoo test within this repository) first identifies the sources to download and compile (there can be multiple sources listed here), then lists the bash commands to actually build this particular project.  Next, the products are defined.  These represent the output of the build process, and are how BinaryBuilder.jl knows that its build has succeeded.  Finally, we pass this information off to autobuild(), which takes it all in and runs the builds, placing output tarballs into the ./products directory.The bash commands contained within script will be executed for each platform that is passed in, so if there are platform differences that need to be addressed in the build script, using if statements and the $target environment variable can be a powerful tool.  See the OpenBLASBuilder build script for an example showcasing this.Once the autobuild() method completes, it will print out a template build.jl file to download and install the generated tarballs.  This file is what will be used in Julia packages that need to use your built binaries.  An example is given in the Nettle repository.While constructing your own build script is certainly possible, BinaryBuilder.jl supports a more interactive method for building the binary dependencies and capturing the commands used to build it into a build_tarballs.jl file; the Wizard interface."
+    "text": "A BinaryBuilder.jl build script (what is often referred to as a build_tarballs.jl file) looks something like this:using BinaryBuilder\n\nsrc_tarball = \"<path to source tarball>\"\nsrc_hash    = \"sha256 hash of the source tarball\"\nsources = [\n    (src_tarball, src_hash),\n]\n\nscript = raw\"\"\"\nmake\nmake install\n\"\"\"\n\nproducts(prefix) = [\n    LibraryProduct(prefix, \"libfoo\", :libfoo),\n    ExecutableProduct(prefix, \"fooifier\", :fooifier),\n]\n\ndependencies = []\n\n# Build \'em!\nbuild_tarballs(\n    ARGS,\n    \"libfoo\",\n    sources,\n    script,\n    platforms,\n    products,\n    dependencies,\n)This bare-bones snippet (an adapted form of the libfoo test within this repository) first identifies the sources to download and compile (there can be multiple sources listed here), then lists the bash commands to actually build this particular project.  Next, the products are defined.  These represent the output of the build process, and are how BinaryBuilder.jl knows that its build has succeeded.  Finally, we pass this information off to build_tarballs(), which takes it all in and runs the builds, placing output tarballs into the ./products directory.The bash commands contained within script will be executed for each platform that is passed in, so if there are platform differences that need to be addressed in the build script, using if statements and the $target environment variable can be a powerful tool.  See the OpenBLASBuilder build script for an example showcasing this.Once the build_tarballs() method completes, it will have written out a build.jl file to download and install the generated tarballs.  This file is what will be used in Julia packages that need to use your built binaries, and is typically included within the tagged release uploads from a builder repository.  Here is an example release from the IpoptBuilder repository, containing built tarballs as well as a build.jl that can be used within Ipopt.jl.While constructing your own build script is certainly possible, BinaryBuilder.jl supports a more interactive method for building the binary dependencies and capturing the commands used to build it into a build_tarballs.jl file; the Wizard interface."
 },
 
 {
@@ -228,7 +228,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.Dependency",
     "page": "Reference",
     "title": "BinaryBuilder.Dependency",
-    "category": "Type",
+    "category": "type",
     "text": "Dependency\n\nA Dependency represents a set of Products that must be satisfied before a package can be run.  These Products can be libraries, basic files, executables, etc...\n\nTo build a Dependency, construct it and use build().  To check to see if it is already satisfied, use satisfied().\n\n\n\n"
 },
 
@@ -236,7 +236,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.QemuRunner",
     "page": "Reference",
     "title": "BinaryBuilder.QemuRunner",
-    "category": "Type",
+    "category": "type",
     "text": "QemuRunner\n\nA QemuRunner represents an \"execution context\", an object that bundles all necessary information to run commands within the container that contains our crossbuild environment.  Use run() to actually run commands within the QemuRunner, and runshell() as a quick way to get an interactive shell within the crossbuild environment.\n\n\n\n"
 },
 
@@ -244,7 +244,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.UserNSRunner",
     "page": "Reference",
     "title": "BinaryBuilder.UserNSRunner",
-    "category": "Type",
+    "category": "type",
     "text": "UserNSRunner\n\nA UserNSRunner represents an \"execution context\", an object that bundles all necessary information to run commands within the container that contains our crossbuild environment.  Use run() to actually run commands within the UserNSRunner, and runshell() as a quick way to get an interactive shell within the crossbuild environment.\n\n\n\n"
 },
 
@@ -252,7 +252,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.WizardState",
     "page": "Reference",
     "title": "BinaryBuilder.WizardState",
-    "category": "Type",
+    "category": "type",
     "text": "WizardState\n\nBuilding large dependencies can take a lot of time. This state object captures all relevant state of this function. It can be passed back to the function to resume where we left off. This can aid debugging when code changes are necessary.  It also holds all necessary metadata such as input/output streams.\n\n\n\n"
 },
 
@@ -268,31 +268,39 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.audit-Tuple{BinaryProvider.Prefix}",
     "page": "Reference",
     "title": "BinaryBuilder.audit",
-    "category": "Method",
+    "category": "method",
     "text": "audit(prefix::Prefix; platform::Platform = platform_key();\n                      verbose::Bool = false,\n                      silent::Bool = false,\n                      autofix::Bool = false)\n\nAudits a prefix to attempt to find deployability issues with the binary objects that have been installed within.  This auditing will check for relocatability issues such as dependencies on libraries outside of the current prefix, usage of advanced instruction sets such as AVX2 that may not be usable on many platforms, linkage against newer glibc symbols, etc...\n\nThis method is still a work in progress, only some of the above list is actually implemented, be sure to actually inspect Auditor.jl to see what is and is not currently in the realm of fantasy.\n\n\n\n"
 },
 
 {
-    "location": "reference.html#BinaryBuilder.autobuild-Tuple{AbstractString,AbstractString,Array{T,1} where T,Array{T,1} where T,Any,Any}",
+    "location": "reference.html#BinaryBuilder.autobuild",
     "page": "Reference",
     "title": "BinaryBuilder.autobuild",
-    "category": "Method",
-    "text": "autobuild(dir::AbstractString, src_name::AbstractString, platforms::Vector,\n          sources::Vector, script, products)\n\nRuns the boiler plate code to download, build, and package a source package for multiple platforms.  src_name\n\n\n\n"
+    "category": "function",
+    "text": "autobuild(dir::AbstractString, src_name::AbstractString, platforms::Vector,\n          sources::Vector, script::AbstractString, products::Function,\n          dependencies::Vector; verbose::Bool = true)\n\nRuns the boiler plate code to download, build, and package a source package for a list of platforms.  src_name represents the name of the source package being built (and will set the name of the built tarballs), platforms is a list of platforms to build for, sources is a list of tuples giving (url, hash) of all sources to download and unpack before building begins, script is a string representing a bash script to run to build the desired products, which are listed as Product objects within the vector returned by the products function. dependencies gives a list of dependencies that provide build.jl files that should be installed before building begins to allow this build process to depend on the results of another build process.\n\n\n\n"
 },
 
 {
     "location": "reference.html#BinaryBuilder.build-Tuple{Any,BinaryBuilder.Dependency}",
     "page": "Reference",
     "title": "BinaryBuilder.build",
-    "category": "Method",
+    "category": "method",
     "text": "build(runner, dep::Dependency; verbose::Bool = false, force::Bool = false,\n              autofix::Bool = false, ignore_audit_errors::Bool = true)\n\nBuild the dependency for given platform (defaulting to the host platform) unless it is already satisfied.  If force is set to true, then the dependency is always built.  Runs an audit of the built files, printing out warnings if hints of unrelocatability are found.  These warnings are, by default, ignored, unless ignore_audit_errors is set to false.  Some warnings can be automatically fixed, and this will be attempted if autofix is set to true.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#BinaryBuilder.build_tarballs-NTuple{7,Any}",
+    "page": "Reference",
+    "title": "BinaryBuilder.build_tarballs",
+    "category": "method",
+    "text": "build_tarballs(ARGS, src_name, sources, script, platforms, products,\n               dependencies)\n\nThis should be the top-level function called from a build_tarballs.jl file. It takes in the information baked into a build_tarballs.jl file such as the sources to download, the products to build, etc... and will automatically download, build and package the tarballs, generating a build.jl file when appropriate.  Note that ARGS should be the top-level Julia ARGS command- line arguments object.\n\n\n\n"
 },
 
 {
     "location": "reference.html#BinaryBuilder.collapse_symlinks-Tuple{Array{String,1}}",
     "page": "Reference",
     "title": "BinaryBuilder.collapse_symlinks",
-    "category": "Method",
+    "category": "method",
     "text": "collapse_symlinks(files::Vector{String})\n\nGiven a list of files, prune those that are symlinks pointing to other files within the list.\n\n\n\n"
 },
 
@@ -300,7 +308,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.collect_files",
     "page": "Reference",
     "title": "BinaryBuilder.collect_files",
-    "category": "Function",
+    "category": "function",
     "text": "collect_files(path::AbstractString, predicate::Function = f -> true)\n\nFind all files that satisfy predicate() when the full path to that file is passed in, returning the list of file paths.\n\n\n\n"
 },
 
@@ -308,7 +316,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.product_hashes_from_github_release-Tuple{AbstractString,AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.product_hashes_from_github_release",
-    "category": "Method",
+    "category": "method",
     "text": "If you have a sharded build on Github, it would be nice if we could get an auto-generated build.jl just like if we build serially.  This function eases the pain by reconstructing it from a releases page.\n\n\n\n"
 },
 
@@ -316,7 +324,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryProvider.satisfied-Tuple{BinaryBuilder.Dependency}",
     "page": "Reference",
     "title": "BinaryProvider.satisfied",
-    "category": "Method",
+    "category": "method",
     "text": "satisfied(dep::Dependency; platform::Platform = platform_key(),\n                           verbose::Bool = false)\n\nReturn true if all results are satisfied for this dependency.\n\n\n\n"
 },
 
@@ -324,7 +332,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.analyze_instruction_set-Tuple{ObjectFile.ObjectHandle}",
     "page": "Reference",
     "title": "BinaryBuilder.analyze_instruction_set",
-    "category": "Method",
+    "category": "method",
     "text": "analyze_instruction_set(oh::ObjectHandle; verbose::Bool = false)\n\nAnalyze the instructions within the binary located at the given path for which minimum instruction set it requires, taking note of groups of instruction sets used such as avx, sse4.2, i486, etc....\n\nSome binary files (such as libopenblas) contain multiple versions of functions, internally determining which version to call by using the cpuid instruction to determine processor support.  In an effort to detect this, we make note of any usage of the cpuid instruction, disabling our minimum instruction set calculations if such an instruction is found, and notifying the user of this if verbose is set to true.\n\nNote that this function only really makes sense for x86/x64 binaries.  Don\'t run this on armv7l, aarch64, ppc64le etc... binaries and expect it to work.\n\n\n\n"
 },
 
@@ -332,7 +340,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.canonicalize_file_url-Tuple{Any}",
     "page": "Reference",
     "title": "BinaryBuilder.canonicalize_file_url",
-    "category": "Method",
+    "category": "method",
     "text": "Canonicalize URL to a file within a GitHub repo\n\n\n\n"
 },
 
@@ -340,7 +348,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.canonicalize_source_url-Tuple{Any}",
     "page": "Reference",
     "title": "BinaryBuilder.canonicalize_source_url",
-    "category": "Method",
+    "category": "method",
     "text": "Canonicalize a GitHub repository URL\n\n\n\n"
 },
 
@@ -348,7 +356,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.change_script!-Tuple{Any,Any}",
     "page": "Reference",
     "title": "BinaryBuilder.change_script!",
-    "category": "Method",
+    "category": "method",
     "text": "Change the script. This will invalidate all platforms to make sure we later\nverify that they still build with the new script.\n\n\n\n"
 },
 
@@ -356,7 +364,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.download_osx_sdk-Tuple{}",
     "page": "Reference",
     "title": "BinaryBuilder.download_osx_sdk",
-    "category": "Method",
+    "category": "method",
     "text": "download_osx_sdk(;automatic::Bool = automatic_apple, verbose::Bool = false,\n                  version::AbstractString = \"10.10\")\n\nApple restricts distribution and usage of the macOS SDK, a necessary component to build software for macOS targets.  Please read the Apple and Xcode SDK agreement for more information on the restrictions and legal terms you agree to when using the SDK to build software for Apple operating systems: https://images.apple.com/legal/sla/docs/xcode.pdf.\n\nIf automatic is set, this method will automatically agree to the Apple usage terms and download the macOS SDK, enabling building for macOS.\n\nTo set this on an environment level, set the BINARYBUILDER_AUTOMATIC_APPLE environment variable to \"true\".\n\n\n\n"
 },
 
@@ -364,7 +372,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.download_source-Tuple{BinaryBuilder.WizardState}",
     "page": "Reference",
     "title": "BinaryBuilder.download_source",
-    "category": "Method",
+    "category": "method",
     "text": "download_source(state::WizardState)\n\nAsk the user where the source code is coming from, then download and record the relevant parameters, returning the source url, the local path it is stored at after download, and a hash identifying the version of the code. In the case of a git source URL, the hash will be a git treeish identifying the exact commit used to build the code, in the case of a tarball, it is the sha256 hash of the tarball itself.\n\n\n\n"
 },
 
@@ -372,7 +380,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.downloads_dir",
     "page": "Reference",
     "title": "BinaryBuilder.downloads_dir",
-    "category": "Function",
+    "category": "function",
     "text": "downloads_dir(postfix::String = \"\")\n\nBuilds a path relative to the downloads_cache.\n\n\n\n"
 },
 
@@ -380,7 +388,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.edit_script-Tuple{BinaryBuilder.WizardState,AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.edit_script",
-    "category": "Method",
+    "category": "method",
     "text": "edit_script(state::WizardState, script::AbstractString)\n\nFor consistency (and security), use the sandbox for editing a script, launching vi within an interactive session to edit a buildscript.\n\n\n\n"
 },
 
@@ -388,7 +396,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.get_shard_hash",
     "page": "Reference",
     "title": "BinaryBuilder.get_shard_hash",
-    "category": "Function",
+    "category": "function",
     "text": "get_shard_url(target::String = \"base\"; squashfs::Bool = use_squashfs)\n\nReturns the sha256 hash for a rootfs image (tarball/squashfs).\n\n\n\n"
 },
 
@@ -396,7 +404,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.get_shard_url",
     "page": "Reference",
     "title": "BinaryBuilder.get_shard_url",
-    "category": "Function",
+    "category": "function",
     "text": "get_shard_url(target::String = \"base\"; squashfs::Bool = use_squashfs)\n\nReturns the URL from which a rootfs image (tarball/squashfs) can be downloaded\n\n\n\n"
 },
 
@@ -404,7 +412,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.instruction_mnemonics-Tuple{AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.instruction_mnemonics",
-    "category": "Method",
+    "category": "method",
     "text": "instruction_mnemonics(path::AbstractString)\n\nDump a binary object with objdump from our super-binutils, returning a list of instruction mnemonics for further analysis with analyze_instruction_set().\n\nNote that this function only really makes sense for x86/x64 binaries.  Don\'t run this on armv7l, aarch64, ppc64le etc... binaries and expect it to work.\n\nThis function returns the list of mnemonics as well as the counts of each, binned by the mapping defined within instruction_categories.\n\n\n\n"
 },
 
@@ -412,7 +420,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.interactive_build-Tuple{BinaryBuilder.WizardState,BinaryProvider.Prefix,BinaryBuilder.Runner,AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.interactive_build",
-    "category": "Method",
+    "category": "method",
     "text": "interactive_build(state::WizardState, prefix::Prefix,\n                  ur::Runner, build_path::AbstractString)\n\nRuns the interactive shell for building, then captures bash history to save\nreproducible steps for building this source. Shared between steps 3 and 5\n\n\n\n"
 },
 
@@ -420,7 +428,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.is_for_platform-Tuple{ObjectFile.ObjectHandle,BinaryProvider.Platform}",
     "page": "Reference",
     "title": "BinaryBuilder.is_for_platform",
-    "category": "Method",
+    "category": "method",
     "text": "is_for_platform(h::ObjectHandle, platform::Platform)\n\nReturns true if the given ObjectHandle refers to an object of the given platform; E.g. if the given platform is for AArch64 Linux, then h must be an ELFHandle with h.header.e_machine set to ELF.EM_AARCH64.\n\n\n\n"
 },
 
@@ -428,7 +436,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.match_files-Tuple{BinaryBuilder.WizardState,BinaryProvider.Prefix,BinaryProvider.Platform,Array{T,1} where T}",
     "page": "Reference",
     "title": "BinaryBuilder.match_files",
-    "category": "Method",
+    "category": "method",
     "text": "match_files(state::WizardState, prefix::Prefix,\n            platform::Platform, files::Vector; silent::Bool = false)\n\nInspects all binary files within a prefix, matching them with a given list of files, complaining if there are any files that are not properly matched and returning the set of normalized names that were not matched, or an empty set if all names were properly matched.\n\n\n\n"
 },
 
@@ -436,7 +444,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.minimum_instruction_set-Tuple{Dict,Bool}",
     "page": "Reference",
     "title": "BinaryBuilder.minimum_instruction_set",
-    "category": "Method",
+    "category": "method",
     "text": "minimum_instruction_set(counts::Dict, is_64bit::Bool)\n\nThis function returns the minimum instruction set required, depending on whether the object file being pointed to is a 32-bit or 64-bit one:\n\nFor 32-bit object files, this returns one of [:pentium4, :prescott]\nFor 64-bit object files, this returns one of [:core2, :sandybridge, :haswell]\n\n\n\n"
 },
 
@@ -444,7 +452,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.normalize_name-Tuple{AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.normalize_name",
-    "category": "Method",
+    "category": "method",
     "text": "normalize_name(file::AbstractString)\n\nGiven a filename, normalize it, stripping out extensions.  E.g. the file path \"foo/libfoo.tar.gz\" would get mapped to \"libfoo\".\n\n\n\n"
 },
 
@@ -452,7 +460,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.pick_preferred_platform-Tuple{Any}",
     "page": "Reference",
     "title": "BinaryBuilder.pick_preferred_platform",
-    "category": "Method",
+    "category": "method",
     "text": "Pick the first platform for use to run on. We prefer Linux x86_64 because\nthat\'s generally the host platform, so it\'s usually easiest. After that we\ngo by the following preferences:\n    - OS (in order): Linux, Windows, OSX\n    - Architecture: x86_64, i686, aarch64, powerpc64le, armv7l\n    - The first remaining after this selection\n\n\n\n"
 },
 
@@ -460,7 +468,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.print_autoconf_hint-Tuple{BinaryBuilder.WizardState}",
     "page": "Reference",
     "title": "BinaryBuilder.print_autoconf_hint",
-    "category": "Method",
+    "category": "method",
     "text": "print_autoconf_hint(state::WizardState)\n\nPrint a hint for projets that use autoconf to have a good ./configure line.\n\n\n\n"
 },
 
@@ -468,7 +476,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.provide_hints-Tuple{BinaryBuilder.WizardState,AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.provide_hints",
-    "category": "Method",
+    "category": "method",
     "text": "provide_hints(state::WizardState, path::AbstractString)\n\nGiven an unpacked source directory, provide hints on how a user might go about building the binary bounty they so richly desire.\n\n\n\n"
 },
 
@@ -476,7 +484,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.rewrite_squashfs_uids-Tuple{Any,Any}",
     "page": "Reference",
     "title": "BinaryBuilder.rewrite_squashfs_uids",
-    "category": "Method",
+    "category": "method",
     "text": "rewrite_squashfs_uids(path, new_uid)\n\nIn order for the sandbox to work well, we need to have the uids of the squashfs images match the uid of the current unpriviledged user. Unfortunately there is no mount-time option to do this for us. However, fortunately, squashfs is simple enough that if the id table is uncompressed, we can just manually patch the uids to be what we need. This functions performs this operation, by rewriting all uids/gids to new_uid.\n\n\n\n"
 },
 
@@ -484,7 +492,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.rootfs_dir",
     "page": "Reference",
     "title": "BinaryBuilder.rootfs_dir",
-    "category": "Function",
+    "category": "function",
     "text": "rootfs_dir(postfix::String = \"\")\n\nBuilds a path relative to the rootfs_cache.\n\n\n\n"
 },
 
@@ -492,7 +500,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.runshell",
     "page": "Reference",
     "title": "BinaryBuilder.runshell",
-    "category": "Function",
+    "category": "function",
     "text": "runshell(platform::Platform = platform_key())\n\nLaunch an interactive shell session within the user namespace, with environment setup to target the given platform.\n\n\n\n"
 },
 
@@ -500,7 +508,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.setup_travis-Tuple{Any}",
     "page": "Reference",
     "title": "BinaryBuilder.setup_travis",
-    "category": "Method",
+    "category": "method",
     "text": "Sets up travis for an existing repository\n\n\n\n"
 },
 
@@ -508,15 +516,15 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.setup_workspace",
     "page": "Reference",
     "title": "BinaryBuilder.setup_workspace",
-    "category": "Function",
-    "text": "setup_workspace(build_path::AbstractString, src_paths::Vector,\n                src_hashes::Vector, platform::Platform,\n                extra_env::Dict{String, String};\n                verbose::Bool = false, tee_stream::IO = STDOUT)\n\nSets up a workspace within build_path, creating the directory structure needed by further steps, unpacking the source within build_path, and defining the environment variables that will be defined within the sandbox environment.\n\nThis method returns the Prefix to install things into, and the runner that can be used to launch commands within this workspace.\n\n\n\n"
+    "category": "function",
+    "text": "setup_workspace(build_path::AbstractString, src_paths::Vector,\n                src_hashes::Vector, platform::Platform,\n                extra_env::Dict{String, String};\n                verbose::Bool = false, tee_stream::IO = stdout)\n\nSets up a workspace within build_path, creating the directory structure needed by further steps, unpacking the source within build_path, and defining the environment variables that will be defined within the sandbox environment.\n\nThis method returns the Prefix to install things into, and the runner that can be used to launch commands within this workspace.\n\n\n\n"
 },
 
 {
     "location": "reference.html#BinaryBuilder.shards_dir",
     "page": "Reference",
     "title": "BinaryBuilder.shards_dir",
-    "category": "Function",
+    "category": "function",
     "text": "shards_dir(postfix::String = \"\")\n\nBuilds a path relative to the shards_cache.\n\n\n\n"
 },
 
@@ -524,7 +532,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.step1-Tuple{BinaryBuilder.WizardState}",
     "page": "Reference",
     "title": "BinaryBuilder.step1",
-    "category": "Method",
+    "category": "method",
     "text": "step1(state::WizardState)\n\nIt all starts with a single step, the unabashed ambition to leave your current stability and engage with the universe on a quest to create something new, and beautiful and unforseen.  It all ends with compiler errors.\n\nThis step selets the relevant platform(s) for the built binaries.\n\n\n\n"
 },
 
@@ -532,7 +540,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.step2-Tuple{BinaryBuilder.WizardState}",
     "page": "Reference",
     "title": "BinaryBuilder.step2",
-    "category": "Method",
+    "category": "method",
     "text": "step2(state::WizardState)\n\nThis step obtains the source code to be built and required binary dependencies.\n\n\n\n"
 },
 
@@ -540,7 +548,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.step34-Tuple{BinaryBuilder.WizardState}",
     "page": "Reference",
     "title": "BinaryBuilder.step34",
-    "category": "Method",
+    "category": "method",
     "text": "step34(state::WizardState)\n\nStarts initial build for Linux x86_64, which is our initial test target platform.  Sources that build properly for this platform continue on to attempt builds for more complex platforms.\n\n\n\n"
 },
 
@@ -548,7 +556,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.step3_audit-Tuple{BinaryBuilder.WizardState,BinaryProvider.Platform,BinaryProvider.Prefix}",
     "page": "Reference",
     "title": "BinaryBuilder.step3_audit",
-    "category": "Method",
+    "category": "method",
     "text": "step3_audit(state::WizardState, platform::Platform, prefix::Prefix)\n\nAudit the prefix.\n\n\n\n"
 },
 
@@ -556,7 +564,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.step3_interactive-Tuple{BinaryBuilder.WizardState,BinaryProvider.Prefix,BinaryProvider.Platform,BinaryBuilder.Runner,AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.step3_interactive",
-    "category": "Method",
+    "category": "method",
     "text": "step3_interactive(state::WizardState, prefix::Prefix, platform::Platform,\n                  ur::Runner, build_path::AbstractString)\n\nThe interactive portion of step3, moving on to either rebuild with an edited script or proceed to step 4.\n\n\n\n"
 },
 
@@ -564,7 +572,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.step3_retry-Tuple{BinaryBuilder.WizardState}",
     "page": "Reference",
     "title": "BinaryBuilder.step3_retry",
-    "category": "Method",
+    "category": "method",
     "text": "step3_retry(state::WizardState)\n\nRebuilds the initial Linux x86_64 build after things like editing the script file manually, etc...\n\n\n\n"
 },
 
@@ -572,7 +580,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.step4-Tuple{BinaryBuilder.WizardState,BinaryBuilder.Runner,BinaryProvider.Platform,AbstractString,BinaryProvider.Prefix}",
     "page": "Reference",
     "title": "BinaryBuilder.step4",
-    "category": "Method",
+    "category": "method",
     "text": "step4(state::WizardState, ur::Runner, platform::Platform,\n      build_path::AbstractString, prefix::Prefix)\n\nThe fourth step selects build products after the first build is done\n\n\n\n"
 },
 
@@ -580,7 +588,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.target_envs-Tuple{AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.target_envs",
-    "category": "Method",
+    "category": "method",
     "text": "target_envs(target::String)\n\nGiven a target (this term is used interchangeably with triplet), generate a Dict mapping representing all the environment variables to be set within the build environment to force compiles toward the defined target architecture. Examples of things set are PATH, CC, RANLIB, as well as nonstandard things like target.\n\n\n\n"
 },
 
@@ -588,7 +596,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.update_linkage-Tuple{BinaryProvider.Prefix,BinaryProvider.Platform,AbstractString,Any,Any}",
     "page": "Reference",
     "title": "BinaryBuilder.update_linkage",
-    "category": "Method",
+    "category": "method",
     "text": "update_linkage(prefix::Prefix, platform::Platform, path::AbstractString,\n               old_libpath, new_libpath; verbose::Bool = false)\n\nGiven a binary object located at path within prefix, update its dynamic linkage to point to new_libpath instead of old_libpath.  This is done using a tool within the cross-compilation environment such as install_name_tool on MacOS or patchelf on Linux.  Windows platforms are completely skipped, as they do not encode paths or RPaths within their executables.\n\n\n\n"
 },
 
@@ -596,7 +604,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.update_qemu-Tuple{}",
     "page": "Reference",
     "title": "BinaryBuilder.update_qemu",
-    "category": "Method",
+    "category": "method",
     "text": "update_qemu(;verbose::Bool = false)\n\nUpdate our QEMU and Linux kernel installations, downloading and installing them into the qemu_cache directory that defaults to deps/qemu.\n\n\n\n"
 },
 
@@ -604,7 +612,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.update_rootfs-Union{Tuple{Array{S,1}}, Tuple{S}} where S<:AbstractString",
     "page": "Reference",
     "title": "BinaryBuilder.update_rootfs",
-    "category": "Method",
+    "category": "method",
     "text": "update_rootfs(triplets::Vector{AbstractString};\n              automatic::Bool = automatic_apple, verbose::Bool = true,\n              squashfs::Bool = use_squashfs)\n\nUpdates the stored rootfs containing all cross-compilers and other compilation machinery for the given triplets.  If automatic is set, when downloading Apple SDKs, you will automatically accept the Apple license agreement and download the macOS SDK for usage in targeting macOS.  See the help for download_osx_sdk() for more details on this.\n\n\n\n"
 },
 
@@ -612,7 +620,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.versioninfo-Tuple{}",
     "page": "Reference",
     "title": "BinaryBuilder.versioninfo",
-    "category": "Method",
+    "category": "method",
     "text": "versioninfo()\n\nHelper function to print out some debugging information\n\n\n\n"
 },
 
@@ -620,7 +628,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#BinaryBuilder.yn_prompt",
     "page": "Reference",
     "title": "BinaryBuilder.yn_prompt",
-    "category": "Function",
+    "category": "function",
     "text": "yn_prompt(state::WizardState, question::AbstractString, default = :y)\n\nPerform a [Y/n] or [y/N] question loop, using default to choose between the prompt styles, and looping until a proper response (e.g. \"y\", \"yes\", \"n\" or \"no\") is received.\n\n\n\n"
 },
 

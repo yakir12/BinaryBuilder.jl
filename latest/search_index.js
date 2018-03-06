@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Project flow",
     "category": "section",
-    "text": "BinaryBuilder.jl makes it easy to move from source code to packaged tarball.  In the end, what you hope to gain from using this package is a handful of compiled tarballs and a Julia snippet that uses BinaryProvider.jl to install the binaries.  An example of this is shown in this file, where a mapping from the different platforms is established to various tarballs that have been built with this package, and according to the platform the user\'s Julia installation is running on, that package is downloaded and installed to a package-specific Prefix.To get to that point, the source code for a project must be downloaded, it must be compiled for the various platforms, it must be packaged and hosted, at which point it may finally be downloaded and installed on user\'s machines.  Although it is technically possible to manually package software using BinaryBuilder.jl, this package is geared toward automation.  Most interaction with this package will revolve around methods to construct a build_tarballs.jl script for your source code that will download, build and package it into a nice tarball.  Note that while you can write your own build script from scratch, most users will want to use the Wizard to interactively generate this build script instead."
+    "text": "BinaryBuilder.jl makes it easy to move from source code to packaged tarball.  In the end, what you hope to gain from using this package is a handful of compiled tarballs and a Julia snippet that uses BinaryProvider.jl to install the binaries.  An example of this is shown in this file, where a mapping from the different platforms is established to various tarballs that have been built with this package, and according to the platform the user\'s Julia installation is running on, that package is downloaded and installed to a package-specific Prefix.To get to that point, the source code for a project must be downloaded, compiled for the various platforms, packaged and hosted, at which point it may finally be downloaded and installed on user\'s machines.  Although it is technically possible to manually package software using BinaryBuilder.jl, this package is geared toward automation.  Most interaction with this package will revolve around methods to construct a build_tarballs.jl script for your source code that will download, build and package it into a nice tarball.  Note that while you can write your own build script from scratch, most users will want to use the Wizard to interactively generate this build script instead."
 },
 
 {
@@ -41,32 +41,40 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "index.html#How-does-this-all-work?-1",
+    "page": "Home",
+    "title": "How does this all work?",
+    "category": "section",
+    "text": "BinaryBuilder.jl wraps a root filesystem that has been carefully constructed so as to provide the set of cross-compilers needed to support the wide array of platforms that Julia runs on.  This _RootFS_ is then used as the chroot jail for a sandboxed process which runs within the RootFS as if that were the whole world.  The workspace containing input source code and (eventually) output binaries is mounted within the RootFS and environment variables are setup such that the appropriate compilers for a particular target platform are used by build tools."
+},
+
+{
     "location": "build_tips.html#",
-    "page": "Build Tips",
-    "title": "Build Tips",
+    "page": "Building Packages",
+    "title": "Building Packages",
     "category": "page",
     "text": ""
 },
 
 {
-    "location": "build_tips.html#Building-tips-1",
-    "page": "Build Tips",
-    "title": "Building tips",
+    "location": "build_tips.html#Tips-for-Building-Packages-1",
+    "page": "Building Packages",
+    "title": "Tips for Building Packages",
     "category": "section",
     "text": "BinaryBuilder provides a convenient environment to enable cross-platform building. But, many libraries have complicated build scripts that may need to be adapted to support all of the BinaryBuilder targets.If you have additional tips, please submit a PR with suggestions."
 },
 
 {
     "location": "build_tips.html#Initiating-different-shell-commands-based-on-target-1",
-    "page": "Build Tips",
+    "page": "Building Packages",
     "title": "Initiating different shell commands based on target",
     "category": "section",
-    "text": "Sometimes, you need to adapt build scripts based on the target platform. This can be done within the shell script. Here is an example from staticfloat/OpenBLASBuilder:# Set BINARY=32 on i686 platforms and armv7l\nif [[ ${target} == i686* ]] || [[ ${target} == arm-* ]]; then\n    flags=\"${flags} BINARY=32\"\nfiHere are other examples of scripts with target-specific checks:davidanthoff/ReadStatBuilder - windows check\nJuliaDiffEq/SundialsBuilder - 32-bit checkIt is also possible to run quite different scripts for each target by running different build scripts for different sets of targets. Here is an example where windows builds are separated from other targets:Keno/ZlibBuilder"
+    "text": "Sometimes, you need to adapt build scripts based on the target platform. This can be done within the shell script. Here is an example from staticfloat/OpenBLASBuilder:# Set BINARY=32 on i686 platforms and armv7l\nif [[ ${nbits} == 32 ]]; then\n    flags=\"${flags} BINARY=32\"\nfiHere are other examples of scripts with target-specific checks:davidanthoff/ReadStatBuilder - windows check\nJuliaDiffEq/SundialsBuilder - 32-bit checkIt is also possible to run quite different scripts for each target by running different build scripts for different sets of targets. Here is an example where windows builds are separated from other targets:Keno/ZlibBuilder"
 },
 
 {
     "location": "build_tips.html#Autoconfigure-builds-1",
-    "page": "Build Tips",
+    "page": "Building Packages",
     "title": "Autoconfigure builds",
     "category": "section",
     "text": "Autoconfigure builds are generally quite straightforward. Here is a typical approach:./configure --prefix=$prefix --host=${target}\nmake -j${nproc}\nmake installHere are examples of autoconfigure build scripts:staticfloat/OggBuilder\nstaticfloat/NettleBuilder"
@@ -74,7 +82,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "build_tips.html#CMake-builds-1",
-    "page": "Build Tips",
+    "page": "Building Packages",
     "title": "CMake builds",
     "category": "section",
     "text": "For CMake, the wizard will suggest a template for running CMake. Typically, this will look like:make -DCMAKE_INSTALL_PREFIX=$prefix -DCMAKE_TOOLCHAIN_FILE=/opt/$target/$target.toolchainThe toolchain file sets up several CMake environment variables for better cross-platform support: # Toolchain file for x86_64-linux-gnu\nset(CMAKE_SYSTEM_NAME Linux)\n\nset(CMAKE_SYSROOT /opt/x86_64-linux-gnu/x86_64-linux-gnu/sys-root/)\nset(CMAKE_INSTALL_PREFIX /)\n\nset(CMAKE_C_COMPILER /opt/x86_64-linux-gnu/bin/x86_64-linux-gnu-gcc)\nset(CMAKE_CXX_COMPILER /opt/x86_64-linux-gnu/bin/x86_64-linux-gnu-g++)\n\nset(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)\nset(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)\nset(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)\nset(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)Examples of builds that include CMake parts include:staticfloat/IpoptBuilder\ndavidanthoff/SnappyBuilder\nJuliaDiffEq/SundialsBuilder\nNeeds -DSUNDIALS_INDEX_TYPE=int32_t on 32-bit targets (Sundials-specific way to specify integer size)\nNeeds to copy *.dll files from destdir/lib to destdir/bin for windows; this also removes symlinks by using cp -L\nNeeds -DCMAKE_FIND_ROOT_PATH=\"$WORKSPACE/destdir\", so CMake\'s find_library can find libraries from KLU"
@@ -82,7 +90,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "build_tips.html#Builds-with-binary-dependencies-1",
-    "page": "Build Tips",
+    "page": "Building Packages",
     "title": "Builds with binary dependencies",
     "category": "section",
     "text": "A build script can depend on binaries generated by another Builder repository. A builder specifies dependencies like:dependencies = [\n    # We need libogg to build FLAC\n    \"https://github.com/staticfloat/OggBuilder/releases/download/v1.3.3-0/build.jl\"\n]Each of the dependencies points to a build.jl file, usually provided with a release of another Builder repository.In the wizard, this can be specified with the prompt: Do you require any (binary) dependencies?  [y/N].Examples of builders that depend on other binaries include:staticfloat/FLACBuilder depends on staticfloat/OggBuilder (build.jl)."
@@ -90,7 +98,7 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "build_tips.html#Editing-files-in-the-wizard-1",
-    "page": "Build Tips",
+    "page": "Building Packages",
     "title": "Editing files in the wizard",
     "category": "section",
     "text": "In the wizard, the vi editor is available for editing files. But, it doesn\'t leave any record in the build script. One generally needs to provide patch files or sue something like sed. Here is an approach using diff and patch:cp file.ext file.ext.orig\nvi file.ext     # make the changes\ndiff -u file.ext.orig file.ext\n# Create a patch based on the results copy-pasted from the output of `diff`\ncat > file.patch <<\'END\'\n--- file.ext.orig 2017-12-14 19:28:48.816021000 -0500\n+++ file.ext2017-12-14 19:29:03.912021000 -0500\n@@ -1,4 +1,5 @@\n -https://computation.llnl.gov/projects/sundials/download/sundials-3.0.0.tar.gz\n +https://computation.llnl.gov/projects/sundials/download/sundials-3.1.0.tar.gz\n  \n  http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-5.0.0.tar.gz\n \nEND\n# Apply the patch\npatch -l file.ext.orig file.patch -o file.extThere are plans to handle file changes in the wizard automatically (#25)."
@@ -98,26 +106,10 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "build_tips.html#Other-examples-1",
-    "page": "Build Tips",
+    "page": "Building Packages",
     "title": "Other examples",
     "category": "section",
     "text": "Examples of other interesting builders include:Keno/LinuxBuilder – Why not build Linux?"
-},
-
-{
-    "location": "environment_variables.html#",
-    "page": "Environment Variables",
-    "title": "Environment Variables",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "environment_variables.html#Environment-Variables-1",
-    "page": "Environment Variables",
-    "title": "Environment Variables",
-    "category": "section",
-    "text": "BinaryBuilder.jl supports multiple environment variables to modify its behavior globally:BINARYBUILDER_AUTOMATIC_APPLE: when set to true, this automatically agrees to the Apple macOS SDK license agreement, enabling the building of binary objects for macOS systems.\nBINARYBUILDER_USE_SQUASHFS: when set to true, this uses .squashfs images instead of tarballs to download cross-compiler shards.  This consumes significantly less space on-disk and boasts a modest reduction in download size as well, but requires sudo on the local machine to mount the .squashfs images.  This is used by default on Travis, as the disk space requirements are tight.  This is always used on OSX, as the QEMU runner always uses squashfs images.\nBINARYBUILDER_DOWNLOADS_CACHE: When set to a path, cross-compiler shards will be downloaded to this location, instead of the default location of <binarybuilder_root>/deps/downloads.\nBINARYBUILDER_ROOTFS_DIR: When set to a path, the base root FS will be unpacked/mounted to this location, instead of the default location of <binarybuilder_root>/deps/root.\nBINARYBUILDER_SHARDS_DIR: When set to a path, cross-compiler shards will be unpacked/mounted to this location, instead of the default location of <binarybuilder_root>/deps/shards.\nBINARYBUILDER_QEMU_DIR: When set to a path, qemu/the linux kernel will be installed here (if using the QemuRunner) instead of the default location of <binarybuilder_root>/deps/qemu\nBINARYBUILDER_RUNNER: When set to a runner string, alters the execution engine that BinaryBuilder.jl will use to wrap the build process in a sandbox.  Valid values are one of \"userns\", \"privileged\" and \"qemu\".  If not given, BinaryBuilder.jl will do its best to guess."
 },
 
 {
@@ -193,6 +185,38 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "rootfs.html#",
+    "page": "RootFS",
+    "title": "RootFS",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "rootfs.html#RootFS-1",
+    "page": "RootFS",
+    "title": "RootFS",
+    "category": "section",
+    "text": "The execution environment that all BinaryBuilder.jl builds are executed within is referred to as the \"root filesystem\" or _RootFS_.  This RootFS is built through the crossbuild Dockerfiles hosted within the staticfloat/julia-docker repository.  The rootfs image is based upon the docker alpine image, and is used to build compilers for every target platform we support.  The target platform compiler toolchains are stored within /opt/${triplet}, so the 64-bit Linux (using glibc as the backing libc) compilers would be found in /opt/x86_64-linux-gnu/bin.Each compiler \"shard\" is packaged separately, so that users do not have to download a multi-GB tarball just to build for a single platform.  The docker image that contains the whole image is exported and chopped up into an overall \"root\" shard, and then target-specific shards, that are downloaded and mounted on demand by BinaryBuilder.jl.Each shard is made available both as a .tar.gz file, and as a .squashfs image.  When mounting, a .tar.gz file must be extracted, taking up extra diskspace, whereas a .squashfs image can be mounted directly, but this unfortunately requires root privileges on the host machine.  This will hopefully be fixed in a future Linux kernel release, but if you have sudo privileges, it is often desireable to use the .squashfs files to save network bandwidth and disk space.  See the Environment Variables for instructions on how to do that.When launching a process within the RootFS image, BinaryBuilder.jl sets up a set of environment variables to enable a target-specific compiler toolchain, among other niceties.  See the src/Runner.jl file within this repository for the details on that.  Other tools that are available include a \"super\" binutils that can understand a ridiculously wide variety of binary formats (stored within /opt/super_binutils/bin), a few useful environment variables such as ${nproc}, ${nbits}, and ${proc_family}."
+},
+
+{
+    "location": "environment_variables.html#",
+    "page": "Environment Variables",
+    "title": "Environment Variables",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "environment_variables.html#Environment-Variables-1",
+    "page": "Environment Variables",
+    "title": "Environment Variables",
+    "category": "section",
+    "text": "BinaryBuilder.jl supports multiple environment variables to modify its behavior globally:BINARYBUILDER_AUTOMATIC_APPLE: when set to true, this automatically agrees to the Apple macOS SDK license agreement, enabling the building of binary objects for macOS systems.\nBINARYBUILDER_USE_SQUASHFS: when set to true, this uses .squashfs images instead of tarballs to download cross-compiler shards.  This consumes significantly less space on-disk and boasts a modest reduction in download size as well, but requires sudo on the local machine to mount the .squashfs images.  This is used by default on Travis, as the disk space requirements are tight.  This is always used on OSX, as the QEMU runner always uses squashfs images.\nBINARYBUILDER_DOWNLOADS_CACHE: When set to a path, cross-compiler shards will be downloaded to this location, instead of the default location of <binarybuilder_root>/deps/downloads.\nBINARYBUILDER_ROOTFS_DIR: When set to a path, the base root FS will be unpacked/mounted to this location, instead of the default location of <binarybuilder_root>/deps/root.\nBINARYBUILDER_SHARDS_DIR: When set to a path, cross-compiler shards will be unpacked/mounted to this location, instead of the default location of <binarybuilder_root>/deps/shards.\nBINARYBUILDER_QEMU_DIR: When set to a path, qemu/the linux kernel will be installed here (if using the QemuRunner) instead of the default location of <binarybuilder_root>/deps/qemu\nBINARYBUILDER_RUNNER: When set to a runner string, alters the execution engine that BinaryBuilder.jl will use to wrap the build process in a sandbox.  Valid values are one of \"userns\", \"privileged\" and \"qemu\".  If not given, BinaryBuilder.jl will do its best to guess."
+},
+
+{
     "location": "tricksy_gotchas.html#",
     "page": "Tricksy Gotchas",
     "title": "Tricksy Gotchas",
@@ -205,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Tricksy Gotchas",
     "title": "Tricksy Gotchas",
     "category": "section",
-    "text": "There is a plethora of gotchas when it comes to binary compilation and distribution that must be appropriately addressed, or the binaries will only work on certain machines and not others.  Here is an incomplete list of things that this package takes care of for you:Uniform compiler interfaceNo need to worry about invoking compilers through weird names; just run gcc within the proper environment and you\'ll get the appropriate cross-compiler.  Triplet-prefixed names (such as x86_64-linux-gnu-gcc) are, of course, also available, and the same version of gcc, g++ and gfortran is used across all platforms.glibc versioningOn Linux platforms that use glibc as the C runtime library (at the time of writing, this is the great majority of most desktop and server distros), it is necessary to compile code against a version of glibc that is _older_ than any glibc version it will be run on.  E.g. if your code is compiled against glibc v2.5, it will run on glibc v2.6, but it will not run on glibc v2.4.  Therefore, to maximize compability, all code should be compiled against as old a version of glibc as possible.Library DependenciesA large source of problems in binary distribution is improper library linkage.  When building a binary object that depends upon another binary object, some operating systems (such as macOS) bake the absolute path to the dependee library into the dependent, whereas others rely on the library being present within a default search path.  BinaryBuilder.jl takes care of this by automatically discovering these errors and fixing them by using the RPATH/RUNPATH semantics of whichever platform it is targeting.  Note that this is technically a build system error, and although we will fix it automatically, it will raise a nice yellow warning during build prefix audit time.Instruction Set DifferencesWhen compiling for architectures that have evolved over time (such as x86_64), it is important to target the correct instruction set, otherwise a binary may contain instructions that will run on the computer it was compiled on, but will fail rather ungracefully when run on a machine that does not have as new a processor.  BinaryBuilder.jl will automatically disassemble every built binary object and inspect the instructions used, warning the user if a binary is found that does not conform to the agreed-upon minimum instruction set architecture.  It will also notice if the binary contains a cpuid instruction, which is a good sign that the binary is aware of this issue and will internally switch itself to use only available instructions."
+    "text": "There are a plethora of gotchas when it comes to binary compilation and distribution that must be appropriately addressed, or the binaries will only work on certain machines and not others.  Here is an incomplete list of things that BinaryBuilder.jl takes care of for you:Uniform compiler interfaceNo need to worry about invoking compilers through weird names; just run gcc within the proper environment and you\'ll get the appropriate cross-compiler.  Triplet-prefixed names (such as x86_64-linux-gnu-gcc) are, of course, also available, and the same version of gcc, g++ and gfortran is used across all platforms.glibc versioningOn Linux platforms that use glibc as the C runtime library (at the time of writing, this is the great majority of most desktop and server distros), it is necessary to compile code against a version of glibc that is _older_ than any glibc version it will be run on.  E.g. if your code is compiled against glibc v2.5, it will run on glibc v2.6, but it will not run on glibc v2.4.  Therefore, to maximize compability, all code should be compiled against as old a version of glibc as possible.Library DependenciesA large source of problems in binary distribution is improper library linkage.  When building a binary object that depends upon another binary object, some operating systems (such as macOS) bake the absolute path to the dependee library into the dependent, whereas others rely on the library being present within a default search path.  BinaryBuilder.jl takes care of this by automatically discovering these errors and fixing them by using the RPATH/RUNPATH semantics of whichever platform it is targeting.  Note that this is technically a build system error, and although we will fix it automatically, it will raise a nice yellow warning during build prefix audit time.Instruction Set DifferencesWhen compiling for architectures that have evolved over time (such as x86_64), it is important to target the correct instruction set, otherwise a binary may contain instructions that will run on the computer it was compiled on, but will fail rather ungracefully when run on a machine that does not have as new a processor.  BinaryBuilder.jl will automatically disassemble every built binary object and inspect the instructions used, warning the user if a binary is found that does not conform to the agreed-upon minimum instruction set architecture.  It will also notice if the binary contains a cpuid instruction, which is a good sign that the binary is aware of this issue and will internally switch itself to use only available instructions."
 },
 
 {

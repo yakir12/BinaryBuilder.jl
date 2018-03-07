@@ -433,6 +433,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#BinaryBuilder.init_git_config-Tuple{Any,Any}",
+    "page": "Reference",
+    "title": "BinaryBuilder.init_git_config",
+    "category": "method",
+    "text": "init_git_config(repo, state)\n\nAsk the user for their username and password for a repository-local .git/config file.  This is used during an interactive wizard session.\n\n\n\n"
+},
+
+{
     "location": "reference.html#BinaryBuilder.instruction_mnemonics-Tuple{AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.instruction_mnemonics",
@@ -526,6 +534,14 @@ var documenterSearchIndex = {"docs": [
     "title": "BinaryBuilder.runshell",
     "category": "function",
     "text": "runshell(platform::Platform = platform_key())\n\nLaunch an interactive shell session within the user namespace, with environment setup to target the given platform.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#BinaryBuilder.set_global_git_config-Tuple{Any,Any}",
+    "page": "Reference",
+    "title": "BinaryBuilder.set_global_git_config",
+    "category": "method",
+    "text": "set_global_git_config(username, email)\n\nSets up a ~/.gitconfig with the given username and email.\n\n\n\n"
 },
 
 {

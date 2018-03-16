@@ -433,6 +433,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#BinaryBuilder.getuid-Tuple{}",
+    "page": "Reference",
+    "title": "BinaryBuilder.getuid",
+    "category": "method",
+    "text": "getuid()\n\nWrapper around libc\'s getuid() function\n\n\n\n"
+},
+
+{
     "location": "reference.html#BinaryBuilder.init_git_config-Tuple{Any,Any}",
     "page": "Reference",
     "title": "BinaryBuilder.init_git_config",

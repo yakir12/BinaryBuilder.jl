@@ -469,7 +469,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Reference",
     "title": "BinaryBuilder.is_for_platform",
     "category": "method",
-    "text": "is_for_platform(h::ObjectHandle, platform::Platform)\n\nReturns true if the given ObjectHandle refers to an object of the given platform; E.g. if the given platform is for AArch64 Linux, then h must be an ELFHandle with h.header.e_machine set to ELF.EM_AARCH64.\n\n\n\n"
+    "text": "is_for_platform(h::ObjectHandle, platform::Platform)\n\nReturns true if the given ObjectHandle refers to an object of the given platform; E.g. if the given platform is for AArch64 Linux, then h must be an ELFHandle with h.header.e_machine set to ELF.EM_AARCH64.\n\nIn particular, this method and platform_for_object() both exist because the latter is not smart enough to deal with :glibc and :musl yet.\n\n\n\n"
 },
 
 {
@@ -502,6 +502,14 @@ var documenterSearchIndex = {"docs": [
     "title": "BinaryBuilder.pick_preferred_platform",
     "category": "method",
     "text": "Pick the first platform for use to run on. We prefer Linux x86_64 because\nthat\'s generally the host platform, so it\'s usually easiest. After that we\ngo by the following preferences:\n    - OS (in order): Linux, Windows, OSX\n    - Architecture: x86_64, i686, aarch64, powerpc64le, armv7l\n    - The first remaining after this selection\n\n\n\n"
+},
+
+{
+    "location": "reference.html#BinaryBuilder.platform_for_object-Tuple{ObjectFile.ObjectHandle}",
+    "page": "Reference",
+    "title": "BinaryBuilder.platform_for_object",
+    "category": "method",
+    "text": "platform_for_object(oh::ObjectHandle)\n\nReturns the platform the given ObjectHandle should run on.  E.g. if the given ObjectHandle is an x86_64 Linux ELF object, this function will return Linux(:x86_64).  This function does not yet distinguish between different libc\'s such as :glibc and :musl.\n\n\n\n"
 },
 
 {

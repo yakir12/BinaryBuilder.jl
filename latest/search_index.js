@@ -657,6 +657,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#BinaryBuilder.translate_symlinks-Tuple{AbstractString}",
+    "page": "Reference",
+    "title": "BinaryBuilder.translate_symlinks",
+    "category": "method",
+    "text": "translate_symlinks(root::AbstractString; verbose::Bool=false)\n\nWalks through the root directory given within root, finding all symlinks that point to an absolute path within root, and rewriting them to be a relative symlink instead, increasing relocatability.\n\n\n\n"
+},
+
+{
     "location": "reference.html#BinaryBuilder.update_linkage-Tuple{BinaryProvider.Prefix,BinaryProvider.Platform,AbstractString,Any,Any}",
     "page": "Reference",
     "title": "BinaryBuilder.update_linkage",

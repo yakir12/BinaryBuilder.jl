@@ -345,6 +345,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#BinaryBuilder.supported_platforms-Tuple{}",
+    "page": "Reference",
+    "title": "BinaryBuilder.supported_platforms",
+    "category": "method",
+    "text": "supported_platforms()\n\nReturn the list of supported platforms as an array of Platforms.  These are the platforms we officially support building for, if you see a mapping in get_shard_hash() that isn\'t represented here, it\'s probably because that platform is still considered \"in beta\".\n\n\n\n"
+},
+
+{
     "location": "reference.html#BinaryProvider.satisfied-Tuple{BinaryBuilder.Dependency}",
     "page": "Reference",
     "title": "BinaryProvider.satisfied",

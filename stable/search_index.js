@@ -213,7 +213,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Environment Variables",
     "title": "Environment Variables",
     "category": "section",
-    "text": "BinaryBuilder.jl supports multiple environment variables to modify its behavior globally:BINARYBUILDER_AUTOMATIC_APPLE: when set to true, this automatically agrees to the Apple macOS SDK license agreement, enabling the building of binary objects for macOS systems.\nBINARYBUILDER_USE_SQUASHFS: when set to true, this uses .squashfs images instead of tarballs to download cross-compiler shards.  This consumes significantly less space on-disk and boasts a modest reduction in download size as well, but requires sudo on the local machine to mount the .squashfs images.  This is used by default on Travis, as the disk space requirements are tight.  This is always used on OSX, as the QEMU runner always uses squashfs images.\nBINARYBUILDER_DOWNLOADS_CACHE: When set to a path, cross-compiler shards will be downloaded to this location, instead of the default location of <binarybuilder_root>/deps/downloads.\nBINARYBUILDER_ROOTFS_DIR: When set to a path, the base root FS will be unpacked/mounted to this location, instead of the default location of <binarybuilder_root>/deps/root.\nBINARYBUILDER_SHARDS_DIR: When set to a path, cross-compiler shards will be unpacked/mounted to this location, instead of the default location of <binarybuilder_root>/deps/shards.\nBINARYBUILDER_QEMU_DIR: When set to a path, qemu/the linux kernel will be installed here (if using the QemuRunner) instead of the default location of <binarybuilder_root>/deps/qemu\nBINARYBUILDER_RUNNER: When set to a runner string, alters the execution engine that BinaryBuilder.jl will use to wrap the build process in a sandbox.  Valid values are one of \"userns\", \"privileged\" and \"qemu\".  If not given, BinaryBuilder.jl will do its best to guess."
+    "text": "BinaryBuilder.jl supports multiple environment variables to modify its behavior globally:BINARYBUILDER_AUTOMATIC_APPLE: when set to true, this automatically agrees to the Apple macOS SDK license agreement, enabling the building of binary objects for macOS systems.\nBINARYBUILDER_USE_SQUASHFS: when set to true, this uses .squashfs images instead of tarballs to download cross-compiler shards.  This consumes significantly less space on-disk and boasts a modest reduction in download size as well, but requires sudo on the local machine to mount the .squashfs images.  This is used by default on Travis, as the disk space requirements are tight.  This is always used on OSX, as the QEMU runner always uses squashfs images.\nBINARYBUILDER_DOWNLOADS_CACHE: When set to a path, cross-compiler shards will be downloaded to this location, instead of the default location of <binarybuilder_root>/deps/downloads.\nBINARYBUILDER_ROOTFS_DIR: When set to a path, the base root FS will be unpacked/mounted to this location, instead of the default location of <binarybuilder_root>/deps/root.  Shards will be bind-mounted into this root directory, depending on the runner used.\nBINARYBUILDER_SHARDS_DIR: When set to a path, cross-compiler shards will be unpacked to this location, instead of the default location of <binarybuilder_root>/deps/shards.\nBINARYBUILDER_QEMU_DIR: When set to a path, qemu/the linux kernel will be installed here (if using the QemuRunner) instead of the default location of <binarybuilder_root>/deps/qemu\nBINARYBUILDER_RUNNER: When set to a runner string, alters the execution engine that BinaryBuilder.jl will use to wrap the build process in a sandbox.  Valid values are one of \"userns\", \"privileged\" and \"qemu\".  If not given, BinaryBuilder.jl will do its best to guess.\nBINARYBUILDER_ALLOW_ECRYPTFS: When set to true, this allows the mounting of rootfs/shard/workspace directories from within encrypted mounts.  This is disabled by default, as at the time of writing, this triggers kernel bugs.  To avoid these kernel bugs on a system where e.g. the home directory has been encrypted, set the BINARYBUILDER_ROOTFS_DIR and BINARYBUILDER_SHARDS_DIR environment variables to a path outside of the encrypted home directory."
 },
 
 {
@@ -345,6 +345,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#BinaryBuilder.supported_platforms-Tuple{}",
+    "page": "Reference",
+    "title": "BinaryBuilder.supported_platforms",
+    "category": "method",
+    "text": "supported_platforms()\n\nReturn the list of supported platforms as an array of Platforms.  These are the platforms we officially support building for, if you see a mapping in get_shard_hash() that isn\'t represented here, it\'s probably because that platform is still considered \"in beta\".\n\n\n\n"
+},
+
+{
     "location": "reference.html#BinaryProvider.satisfied-Tuple{BinaryBuilder.Dependency}",
     "page": "Reference",
     "title": "BinaryProvider.satisfied",
@@ -433,6 +441,22 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#BinaryBuilder.getuid-Tuple{}",
+    "page": "Reference",
+    "title": "BinaryBuilder.getuid",
+    "category": "method",
+    "text": "getuid()\n\nWrapper around libc\'s getuid() function\n\n\n\n"
+},
+
+{
+    "location": "reference.html#BinaryBuilder.init_git_config-Tuple{Any,Any}",
+    "page": "Reference",
+    "title": "BinaryBuilder.init_git_config",
+    "category": "method",
+    "text": "init_git_config(repo, state)\n\nAsk the user for their username and password for a repository-local .git/config file.  This is used during an interactive wizard session.\n\n\n\n"
+},
+
+{
     "location": "reference.html#BinaryBuilder.instruction_mnemonics-Tuple{AbstractString}",
     "page": "Reference",
     "title": "BinaryBuilder.instruction_mnemonics",
@@ -449,11 +473,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#BinaryBuilder.is_ecryptfs-Tuple{AbstractString}",
+    "page": "Reference",
+    "title": "BinaryBuilder.is_ecryptfs",
+    "category": "method",
+    "text": "is_ecryptfs(path::AbstractString; verbose::Bool=false)\n\nChecks to see if the given path (or any parent directory) is placed upon an ecryptfs mount.  This is known not to work on current kernels, see this bug for more details: https://bugzilla.kernel.org/show_bug.cgi?id=197603\n\nThis method returns whether it is encrypted or not, and what mountpoint it used to make that decision.\n\n\n\n"
+},
+
+{
     "location": "reference.html#BinaryBuilder.is_for_platform-Tuple{ObjectFile.ObjectHandle,BinaryProvider.Platform}",
     "page": "Reference",
     "title": "BinaryBuilder.is_for_platform",
     "category": "method",
-    "text": "is_for_platform(h::ObjectHandle, platform::Platform)\n\nReturns true if the given ObjectHandle refers to an object of the given platform; E.g. if the given platform is for AArch64 Linux, then h must be an ELFHandle with h.header.e_machine set to ELF.EM_AARCH64.\n\n\n\n"
+    "text": "is_for_platform(h::ObjectHandle, platform::Platform)\n\nReturns true if the given ObjectHandle refers to an object of the given platform; E.g. if the given platform is for AArch64 Linux, then h must be an ELFHandle with h.header.e_machine set to ELF.EM_AARCH64.\n\nIn particular, this method and platform_for_object() both exist because the latter is not smart enough to deal with :glibc and :musl yet.\n\n\n\n"
 },
 
 {
@@ -486,6 +518,14 @@ var documenterSearchIndex = {"docs": [
     "title": "BinaryBuilder.pick_preferred_platform",
     "category": "method",
     "text": "Pick the first platform for use to run on. We prefer Linux x86_64 because\nthat\'s generally the host platform, so it\'s usually easiest. After that we\ngo by the following preferences:\n    - OS (in order): Linux, Windows, OSX\n    - Architecture: x86_64, i686, aarch64, powerpc64le, armv7l\n    - The first remaining after this selection\n\n\n\n"
+},
+
+{
+    "location": "reference.html#BinaryBuilder.platform_for_object-Tuple{ObjectFile.ObjectHandle}",
+    "page": "Reference",
+    "title": "BinaryBuilder.platform_for_object",
+    "category": "method",
+    "text": "platform_for_object(oh::ObjectHandle)\n\nReturns the platform the given ObjectHandle should run on.  E.g. if the given ObjectHandle is an x86_64 Linux ELF object, this function will return Linux(:x86_64).  This function does not yet distinguish between different libc\'s such as :glibc and :musl.\n\n\n\n"
 },
 
 {
@@ -526,6 +566,14 @@ var documenterSearchIndex = {"docs": [
     "title": "BinaryBuilder.runshell",
     "category": "function",
     "text": "runshell(platform::Platform = platform_key())\n\nLaunch an interactive shell session within the user namespace, with environment setup to target the given platform.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#BinaryBuilder.set_global_git_config-Tuple{Any,Any}",
+    "page": "Reference",
+    "title": "BinaryBuilder.set_global_git_config",
+    "category": "method",
+    "text": "set_global_git_config(username, email)\n\nSets up a ~/.gitconfig with the given username and email.\n\n\n\n"
 },
 
 {
@@ -614,6 +662,14 @@ var documenterSearchIndex = {"docs": [
     "title": "BinaryBuilder.target_envs",
     "category": "method",
     "text": "target_envs(target::String)\n\nGiven a target (this term is used interchangeably with triplet), generate a Dict mapping representing all the environment variables to be set within the build environment to force compiles toward the defined target architecture. Examples of things set are PATH, CC, RANLIB, as well as nonstandard things like target.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#BinaryBuilder.translate_symlinks-Tuple{AbstractString}",
+    "page": "Reference",
+    "title": "BinaryBuilder.translate_symlinks",
+    "category": "method",
+    "text": "translate_symlinks(root::AbstractString; verbose::Bool=false)\n\nWalks through the root directory given within root, finding all symlinks that point to an absolute path within root, and rewriting them to be a relative symlink instead, increasing relocatability.\n\n\n\n"
 },
 
 {

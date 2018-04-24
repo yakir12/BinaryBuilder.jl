@@ -317,7 +317,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Reference",
     "title": "BinaryBuilder.build_tarballs",
     "category": "method",
-    "text": "build_tarballs(ARGS, src_name, sources, script, platforms, products,\n               dependencies)\n\nThis should be the top-level function called from a build_tarballs.jl file. It takes in the information baked into a build_tarballs.jl file such as the sources to download, the products to build, etc... and will automatically download, build and package the tarballs, generating a build.jl file when appropriate.  Note that ARGS should be the top-level Julia ARGS command- line arguments object.\n\n\n\n"
+    "text": "build_tarballs(ARGS, src_name, sources, script, platforms, products,\n               dependencies)\n\nThis should be the top-level function called from a build_tarballs.jl file. It takes in the information baked into a build_tarballs.jl file such as the sources to download, the products to build, etc... and will automatically download, build and package the tarballs, generating a build.jl file when appropriate.  Note that ARGS should be the top-level Julia ARGS command- line arguments object.  This function does some rudimentary parsing of the ARGS, call it with --help in the ARGS to see what it can do.\n\n\n\n"
 },
 
 {

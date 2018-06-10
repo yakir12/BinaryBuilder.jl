@@ -357,7 +357,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Reference",
     "title": "BinaryProvider.satisfied",
     "category": "method",
-    "text": "satisfied(dep::Dependency; platform::Platform = platform_key(),\n                           verbose::Bool = false)\n\nReturn true if all results are satisfied for this dependency.\n\n\n\n"
+    "text": "satisfied(dep::Dependency; verbose::Bool = false, isolate::Bool = true)\n\nReturn true if all results are satisfied for this dependency.\n\n\n\n"
 },
 
 {
@@ -422,6 +422,14 @@ var documenterSearchIndex = {"docs": [
     "title": "BinaryBuilder.edit_script",
     "category": "method",
     "text": "edit_script(state::WizardState, script::AbstractString)\n\nFor consistency (and security), use the sandbox for editing a script, launching vi within an interactive session to edit a buildscript.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#BinaryBuilder.filter_object_files-Tuple{Any}",
+    "page": "Reference",
+    "title": "BinaryBuilder.filter_object_files",
+    "category": "method",
+    "text": "filter_object_files(files)\n\nGiven a list of files, filter out any that cannot be opened by readmeta() from ObjectFile.\n\n\n\n"
 },
 
 {

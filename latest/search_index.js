@@ -297,11 +297,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "reference.html#BinaryBuilder.autobuild",
+    "location": "reference.html#BinaryBuilder.autobuild-Tuple{AbstractString,AbstractString,VersionNumber,Array{T,1} where T,AbstractString,Array{T,1} where T,Function,Array{T,1} where T}",
     "page": "Reference",
     "title": "BinaryBuilder.autobuild",
-    "category": "function",
-    "text": "autobuild(dir::AbstractString, src_name::AbstractString, platforms::Vector,\n          sources::Vector, script::AbstractString, products::Function,\n          dependencies::Vector; verbose::Bool = true, debug::Bool = false)\n\nRuns the boiler plate code to download, build, and package a source package for a list of platforms.  src_name represents the name of the source package being built (and will set the name of the built tarballs), platforms is a list of platforms to build for, sources is a list of tuples giving (url, hash) of all sources to download and unpack before building begins, script is a string representing a bash script to run to build the desired products, which are listed as Product objects within the vector returned by the products function. dependencies gives a list of dependencies that provide build.jl files that should be installed before building begins to allow this build process to depend on the results of another build process. Setting debug to true will cause a failed build to drop into an interactive shell so that the build can be inspected easily.\n\n\n\n"
+    "category": "method",
+    "text": "autobuild(dir::AbstractString, src_name::AbstractString,\n          src_version::VersionNumber, sources::Vector,\n          script::AbstractString, platforms::Vector,\n          products::Function, dependencies::Vector;\n          verbose::Bool = true, debug::Bool = false)\n\nRuns the boiler plate code to download, build, and package a source package for a list of platforms.  src_name represents the name of the source package being built (and will set the name of the built tarballs), platforms is a list of platforms to build for, sources is a list of tuples giving (url, hash) of all sources to download and unpack before building begins, script is a string representing a bash script to run to build the desired products, which are listed as Product objects within the vector returned by the products function. dependencies gives a list of dependencies that provide build.jl files that should be installed before building begins to allow this build process to depend on the results of another build process. Setting debug to true will cause a failed build to drop into an interactive shell so that the build can be inspected easily.\n\n\n\n"
 },
 
 {
@@ -313,11 +313,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "reference.html#BinaryBuilder.build_tarballs-NTuple{7,Any}",
+    "location": "reference.html#BinaryBuilder.build_tarballs-NTuple{8,Any}",
     "page": "Reference",
     "title": "BinaryBuilder.build_tarballs",
     "category": "method",
-    "text": "build_tarballs(ARGS, src_name, sources, script, platforms, products,\n               dependencies)\n\nThis should be the top-level function called from a build_tarballs.jl file. It takes in the information baked into a build_tarballs.jl file such as the sources to download, the products to build, etc... and will automatically download, build and package the tarballs, generating a build.jl file when appropriate.  Note that ARGS should be the top-level Julia ARGS command- line arguments object.  This function does some rudimentary parsing of the ARGS, call it with --help in the ARGS to see what it can do.\n\n\n\n"
+    "text": "build_tarballs(ARGS, src_name, src_version, sources, script, platforms,\n               products, dependencies)\n\nThis should be the top-level function called from a build_tarballs.jl file. It takes in the information baked into a build_tarballs.jl file such as the sources to download, the products to build, etc... and will automatically download, build and package the tarballs, generating a build.jl file when appropriate.  Note that ARGS should be the top-level Julia ARGS command- line arguments object.  This function does some rudimentary parsing of the ARGS, call it with --help in the ARGS to see what it can do.\n\n\n\n"
 },
 
 {
